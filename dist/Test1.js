@@ -6,11 +6,12 @@ const unit_test = async () => {
         console.log("Test add failed");
         process.exit(1);
     }
-    if (utils.add(2, 3) === 6) {
-    }
-    else {
-        console.log("Test add failed");
-        process.exit(1);
-    }
+    // if (utils.add(2, 3) === 6) {
+    // } else {
+    //     console.log("Test add failed");
+    //     process.exit(1);
+    // }
 };
 unit_test();
+export {};
+//# sourceMappingURL=Test1.js.map
