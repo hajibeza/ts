@@ -1,0 +1,12 @@
+name: workflow2
+on:
+  workflow_run:
+    workflows: ["main"] 
+    types:
+      - completed
+
+jobs:
+  test2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
