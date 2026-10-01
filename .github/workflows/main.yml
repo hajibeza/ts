@@ -1,11 +1,20 @@
 name: main
 on: [push]
 jobs:
-  print-text:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout Code
-          uses: actions/checkout@v4
-          
-        - name: Print text from index
-          run: cat dist/index.js
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '24'
+      - name: Run Test1
+        run: |
+          output=$(node dist/Test1.js)
+          exit_code=$output
+
+          if[ $exit_code -ne 0 ] then
+            echo "error: exit code $exit_code"
+            exit 1
