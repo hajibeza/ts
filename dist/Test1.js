@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const utils = require("./Utils").Utils;
 const unit_test = async () => {
     if (utils.add(2, 3) === 5) {
