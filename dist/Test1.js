@@ -14,5 +14,3 @@ const unit_test = async () => {
     }
 };
 unit_test();
-export {};
-//# sourceMappingURL=Test1.js.map

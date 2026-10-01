@@ -8,4 +8,3 @@ export const Utils = {
     Hello,
     add
 };
-//# sourceMappingURL=Utils.js.map
