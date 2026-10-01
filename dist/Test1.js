@@ -4,7 +4,13 @@ const unit_test = async () => {
     }
     else {
         console.log("Test add failed");
-        return;
+        process.exit(1);
+    }
+    if (utils.add(2, 3) === 6) {
+    }
+    else {
+        console.log("Test add failed");
+        process.exit(1);
     }
 };
 unit_test();
