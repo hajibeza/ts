@@ -5,7 +5,7 @@ function Hello() {
     return "Hello World";
 }
 function add(a, b) {
-    return a * b;
+    return a + b;
 }
 exports.Utils = {
     Hello,
