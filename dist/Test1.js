@@ -14,4 +14,3 @@ const unit_test = async () => {
     }
 };
 unit_test();
-export {};
