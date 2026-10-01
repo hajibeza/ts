@@ -11,4 +11,4 @@ jobs:
         with:
           node-version: '24'
       - name: Run Test1
-        run: node fist/Test1.js
+        run: node dist/Test1.js
