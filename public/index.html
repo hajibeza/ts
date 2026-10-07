@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Users</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    h1 { margin-bottom: .25rem; }
+    section { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    input { padding: .45rem; margin: .2rem .2rem .2rem 0; }
+    button { padding: .45rem .8rem; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: .4rem; border-bottom: 1px solid #eee; font-size: .9rem; word-break: break-all; }
+    #msg { min-height: 1.4rem; font-weight: 600; }
+    .err { color: #c0392b; }
+    .ok { color: #1e8449; }
+    pre { background: #f6f6f6; padding: .6rem; border-radius: 6px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Users</h1>
+  <div id="msg"></div>
+
+  <section>
+    <h3 id="formTitle">Create user</h3>
+    <form id="userForm">
+      <input id="name" placeholder="Name" required>
+      <input id="email" type="email" placeholder="Email" required>
+      <input id="password" type="password" placeholder="Password" required>
+      <button type="submit" id="submitBtn">Create</button>
+      <button type="button" id="cancelBtn" hidden>Cancel edit</button>
+    </form>
+  </section>
+
+  <section>
+    <h3>Get user by id</h3>
+    <input id="findId" placeholder="User id" size="30">
+    <button id="findBtn">Get</button>
+    <pre id="found" hidden></pre>
+  </section>
+
+  <section>
+    <h3>All users <button id="reloadBtn">Reload</button></h3>
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Id</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+
+  <script>
+    const API = "/api/users";
+    const $ = (id) => document.getElementById(id);
+    let editId = null;
+
+    function say(text, ok = true) {
+      $("msg").textContent = text;
+      $("msg").className = ok ? "ok" : "err";
+    }
+
+    async function call(url, options) {
+      const res = await fetch(url, options);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || res.status);
+      return data;
+    }
+
+    async function loadUsers() {
+      try {
+        const users = await call(API);
+        $("rows").innerHTML = "";
+        for (const u of users) {
+          const tr = document.createElement("tr");
+          for (const text of [u.name, u.email, u._id]) {
+            const td = document.createElement("td");
+            td.textContent = text;
+            tr.appendChild(td);
+          }
+          const actions = document.createElement("td");
+          const edit = document.createElement("button");
+          edit.textContent = "Edit";
+          edit.onclick = () => startEdit(u);
+          const del = document.createElement("button");
+          del.textContent = "Delete";
+          del.onclick = () => removeUser(u._id);
+          actions.append(edit, " ", del);
+          tr.appendChild(actions);
+          $("rows").appendChild(tr);
+        }
+      } catch (e) { say(e.message, false); }
+    }
+
+    function startEdit(u) {
+      editId = u._id;
+      $("name").value = u.name;
+      $("email").value = u.email;
+      $("password").value = "";
+      $("formTitle").textContent = "Update user " + u._id;
+      $("submitBtn").textContent = "Update";
+      $("cancelBtn").hidden = false;
+    }
+
+    function resetForm() {
+      editId = null;
+      $("userForm").reset();
+      $("formTitle").textContent = "Create user";
+      $("submitBtn").textContent = "Create";
+      $("cancelBtn").hidden = true;
+    }
+
+    async function removeUser(id) {
+      if (!confirm("Delete this user?")) return;
+      try {
+        const data = await call(API + "/" + id, { method: "DELETE" });
+        say(data.message);
+        loadUsers();
+      } catch (e) { say(e.message, false); }
+    }
+
+    $("userForm").onsubmit = async (event) => {
+      event.preventDefault();
+      const body = JSON.stringify({
+        name: $("name").value,
+        email: $("email").value,
+        password: $("password").value,
+      });
+      const options = {
+        method: editId ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      };
+      try {
+        await call(editId ? API + "/" + editId : API, options);
+        say(editId ? "User updated" : "User created");
+        resetForm();
+        loadUsers();
+      } catch (e) { say(e.message, false); }
+    };
+
+    $("findBtn").onclick = async () => {
+      try {
+        const user = await call(API + "/" + $("findId").value.trim());
+        $("found").textContent = JSON.stringify(user, null, 2);
+        $("found").hidden = false;
+        say("User found");
+      } catch (e) {
+        $("found").hidden = true;
+        say(e.message, false);
+      }
+    };
+
+    $("cancelBtn").onclick = resetForm;
+    $("reloadBtn").onclick = loadUsers;
+    loadUsers();
+  </script>
+</body>
+</html>
